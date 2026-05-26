@@ -17,7 +17,7 @@ Aplikasi ini menggunakan teknologi **WebRTC** untuk transmisi video berlatensi s
 
 ---
 
-## 🚀 Fitur Utama
+## Fitur Utama
 
 - **Transmisi Layar Latensi Rendah (WebRTC)**: Streaming layar secara langsung dengan kecepatan tinggi dan latensi minimal.
 - **Kontrol Mouse & Keyboard Penuh**: Mendukung gerakan mouse, drag-and-drop, klik kiri/kanan/tengah, scrolling, serta pengetikan keyboard jarak jauh.
@@ -29,7 +29,7 @@ Aplikasi ini menggunakan teknologi **WebRTC** untuk transmisi video berlatensi s
 
 ---
 
-## 🛠️ Persyaratan Sistem & Prasyarat
+## Persyaratan Sistem & Prasyarat
 
 ### 1. Kebutuhan Node.js
 Pastikan Anda sudah menginstal **Node.js** (versi 16 atau yang lebih baru direkomendasikan) pada komputer Anda.
@@ -69,7 +69,7 @@ Karena **RobotJS** melakukan simulasi input langsung pada sistem operasi, bebera
 
 ---
 
-## 🖥️ Cara Penggunaan
+## Cara Penggunaan
 
 ### Langkah 1: Jalankan Server
 
@@ -120,7 +120,7 @@ node server.js
 
 ---
 
-## 📁 Struktur File Proyek
+## Struktur File Proyek
 
 ```plaintext
 webrtc-remote-desktop/
@@ -138,7 +138,7 @@ webrtc-remote-desktop/
 
 ---
 
-## ⚠️ Troubleshooting & Tips
+## Troubleshooting & Tips
 
 1. **Kursor / Klik Tidak Berfungsi di Host Linux**:
    Pastikan Host tidak menggunakan sesi Wayland. Lakukan *logout*, lalu pada layar login klik ikon gerigi di pojok kanan bawah, pilih **"Ubuntu on Xorg"** atau **"GNOME on Xorg"**, dan masuk kembali.
