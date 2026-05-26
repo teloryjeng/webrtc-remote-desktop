@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <title>WebRTC Remote Desktop Viewer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #1a1a1a;
+            color: #eee;
+            margin: 0;
+            padding: 5px 20px 20px 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: auto;
+        }
+
+        /* Modal Identitas */
+        #identityModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: #2d2d2d;
+            padding: 30px;
+            border-radius: 12px;
+            width: 320px;
+            text-align: center;
+            border: 1px solid #444;
+        }
+
+        .modal-content input {
+            width: 90%;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 6px;
+            border: none;
+            font-size: 16px;
+            outline: none;
+        }
+
+        /* Header & Logo */
+        .header-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: -5px;
+            margin-bottom: 5px;
+        }
+
+        .app-logo {
+            height: 200px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .header-area h2 {
+            margin: 0;
+        }
+
+        /* Panel Kontrol */
+        .controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #252525;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #333;
+        }
+
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            height: 75vh;
+        }
+
+        /* Video & Overlay Host */
+        .video-section {
+            flex: 3;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #333;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            cursor: default;
+        }
+
+        #hostStatusOverlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #121212;
+            z-index: 10;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        /* Area Obrolan & Transfer Berkas */
+        .chat-section {
+            flex: 1;
+            background: #252525;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #333;
+        }
+
+        #chatMessages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .msg {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            max-width: 85%;
+            line-height: 1.4;
+        }
+
+        .msg-remote {
+            background: #3a3a3a;
+            align-self: flex-start;
+        }
+
+        .msg-local {
+            background: #0078d4;
+            align-self: flex-end;
+        }
+
+        .sender-tag {
+            font-weight: bold;
+            font-size: 11px;
+            color: #aaa;
+            margin-bottom: 3px;
+            display: block;
+        }
+
+        #fileTransferArea {
+            padding: 10px;
+            background: #2d2d2d;
+            border-top: 1px solid #444;
+            border-bottom: 1px solid #333;
+        }
+
+        .chat-input-area {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #333;
+            align-items: center;
+        }
+
+        #chatInput {
+            flex: 1;
+            padding: 10px;
+            border-radius: 4px;
+            border: none;
+            background: #333;
+            color: white;
+            outline: none;
+        }
+
+        /* Tombol & Input Umum */
+        button {
+            padding: 10px 18px;
+            border-radius: 6px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-green {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-blue {
+            background: #0078d4;
+            color: white;
+        }
+
+        #inputCode {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background: #333;
+            color: white;
+            width: 120px;
+            text-align: center;
+            outline: none;
+            margin-right: 8px;
+        }
+
+        #inputCode:focus {
+            border-color: #0078d4;
+        }
+
+        /* Tombol Ikon (Mic & Send) */
+        #micBtn,
+        #sendBtn {
+            background: transparent;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 8px;
+            transition: 0.2s;
+            outline: none;
+        }
+
+        #micBtn {
+            color: #e74c3c;
+            margin-left: 10px;
+        }
+
+        #sendBtn {
+            color: #0078d4;
+        }
+
+        #micBtn:hover,
+        #sendBtn:hover {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+
+        /* Custom File Upload Styling - Highly Premium & Modern */
+        #fileTransferArea {
+            padding: 15px;
+            background: #202020;
+            border-top: 1px solid #333;
+            border-bottom: 1px solid #333;
+            transition: all 0.3s ease;
+        }
+
+        #fileTransferArea.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+            filter: grayscale(0.8);
+        }
+
+        .file-upload-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .custom-file-label {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #2d2d2d;
+            border: 1px dashed #444;
+            border-radius: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #ccc;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            user-select: none;
+            position: relative;
+        }
+
+        .custom-file-label::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 120, 212, 0.1), rgba(40, 167, 69, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+            border-radius: 8px;
+        }
+
+        .custom-file-label:hover {
+            border-color: #0078d4;
+            color: #fff;
+            background: #333;
+            box-shadow: 0 0 12px rgba(0, 120, 212, 0.25);
+        }
+
+        .custom-file-label:hover::before {
+            opacity: 1;
+        }
+
+        .custom-file-label i,
+        .custom-file-label span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .custom-file-label i {
+            font-size: 18px;
+            color: #0078d4;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease;
+        }
+
+        .custom-file-label:hover i {
+            transform: scale(1.2) rotate(-5deg);
+            color: #0086f0;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        #sendFileBtn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 40px;
+            width: 40px;
+            min-width: 40px;
+            padding: 0;
+            border-radius: 8px;
+            background: #28a745;
+            color: white;
+            font-size: 18px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(40, 167, 69, 0.2);
+        }
+
+        #sendFileBtn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.5s ease;
+        }
+
+        #sendFileBtn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        #sendFileBtn:hover::after {
+            left: 100%;
+        }
+
+        #sendFileBtn:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="identityModal">
+        <div class="modal-content">
+            <h3>Masukkan Nama</h3>
+            <input type="text" id="userNameInput" placeholder="Ketik nama..." autofocus autocomplete="off">
+            <button id="joinBtn" class="btn-blue" style="width: 100%;">Masuk</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header-area">
+            <img src="logo.png" alt="Logo Aplikasi" class="app-logo">
+        </div>
+
+        <div class="controls-bar">
+            <div>
+                <button id="startBtn" class="btn-green">Buat Kode Akses</button>
+                <span id="displayCode" style="margin-left: 15px; font-weight: bold; color: #f1c40f;"></span>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <input type="text" id="inputCode" placeholder="6 Digit Kode" maxlength="6" autocomplete="off">
+                <button id="viewBtn" class="btn-blue">Hubungkan</button>
+            </div>
+        </div>
+
+        <div class="main-layout">
+            <div class="video-section">
+                <div id="hostStatusOverlay">
+                    <div style="font-size: 48px; margin-bottom: 15px;">
+                        <i class="bi bi-pc-display-horizontal" style="color: #28a745;"></i>
+                    </div>
+                    <div style="font-size: 20px; color: #28a745; font-weight: bold;">Layar sedang dibagikan</div>
+                    <p style="color: #888; font-size: 14px;">Kontrol sistem aktif dari jarak jauh</p>
+                </div>
+                <video id="remoteVideo" autoplay playsinline></video>
+            </div>
+
+            <div class="chat-section">
+                <div id="chatMessages"></div>
+
+                <div id="fileTransferArea" class="disabled">
+                    <div id="fileTransferStatusText" style="font-size: 12px; color: #aaa; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                        <span>Kirim Berkas (P2P):</span>
+                        <span id="connectionBadge" style="color: #e74c3c; font-size: 10px; font-weight: bold; background: rgba(231, 76, 60, 0.1); padding: 2px 6px; border-radius: 4px; display: flex; align-items: center; gap: 4px;">
+                            <i class="bi bi-lock-fill"></i> Belum Terhubung
+                        </span>
+                    </div>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="fileInput" disabled>
+                        <label for="fileInput" class="custom-file-label" style="width: 100%;">
+                            <i class="bi bi-folder2-open"></i>
+                            <span id="fileNameLabel">Pilih berkas...</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="chat-input-area">
+                    <input type="text" id="chatInput" placeholder="Pesan..." autocomplete="off">
+                    <button id="micBtn" title="Mikrofon Mati"><i class="bi bi-mic-mute-fill"></i></button>
+                    <button id="sendBtn"><i class="bi bi-send-fill"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
