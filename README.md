@@ -45,7 +45,7 @@ Karena **RobotJS** melakukan simulasi input langsung pada sistem operasi, bebera
 
 ---
 
-## ⚙️ Cara Instalasi & Konfigurasi
+## Cara Instalasi & Konfigurasi
 
 1. **Unduh atau Clone Repositori Ini**
    Masuk ke direktori proyek:
