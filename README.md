@@ -11,6 +11,8 @@ Dosen Pengampu : Akhmad Alimudin S.ST, M.Kom, Ph.D
 **POLITEKNIK ELEKTRONIKA NEGERI SURABAYA**
 
 ---
+![Logo WebRTC](./public/logo.png)
+
 Aplikasi **WebRTC Remote Desktop** adalah platform berbasis web yang memungkinkan Anda membagikan layar komputer (*Host/Presenter*) dan mengontrolnya dari jarak jauh (*Viewer*) secara real-time melalui web browser tanpa memerlukan instalasi perangkat lunak pihak ketiga (seperti TeamViewer atau AnyDesk). 
 
 Aplikasi ini menggunakan teknologi **WebRTC** untuk transmisi video berlatensi sangat rendah, **Socket.io** sebagai signaling server, dan **RobotJS** di sisi Host untuk mengeksekusi kontrol mouse serta keyboard.
